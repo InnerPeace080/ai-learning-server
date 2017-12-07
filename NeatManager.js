@@ -25,8 +25,14 @@ class NeatManager{
   }
 
   initNeat(){
+    this.numberInput = 1 + Define.FISH_PROPS * Define.FISH_NUM +
+                          Define.PLAYER_PROPS *Define.PLAYER_NUM +
+                          Define.ITEM_PROPS *Define.ITEM_NUM +
+                          Define.ROCK_PROPS *Define.ROCK_NUM +
+                          Define.BULLET_PROPS *Define.BULLET_NUM
+
     this.neat = new Neat(
-      2 * (Define.WIDTH*Define.HEIGHT + 1) /* life*/,
+      this.numberInput * 2,
       1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
       null,
       {
