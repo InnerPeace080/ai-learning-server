@@ -76,7 +76,7 @@ class NeatManager{
     })
 
     this.donePlayer =0;
-
+    this.endEvaluationProcess = false
 
     // for(var genome in this.neat.population){
     //   genome = this.neat.population[genome];
@@ -189,6 +189,10 @@ class NeatManager{
   }
 
   endEvaluation(){
+    if (this.endEvaluationProcess) {
+      return;
+    }
+    this.endEvaluationProcess = true
     console.log('Generation:', this.neat.generation, '- average score:', this.neat.getAverage());
 
     var data =[]
