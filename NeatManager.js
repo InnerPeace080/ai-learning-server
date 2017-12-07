@@ -50,11 +50,13 @@ class NeatManager{
     if (true) {
       jsonfile.readFile('./data', (err, obj) =>{
         if (!err) {
-          var newPop = [];
-          obj.forEach((current)=>{
-            newPop.push(neataptic.Network.fromJSON(current))
+          // var newPop = [];
+          obj.forEach((current,index)=>{
+            // newPop.push(neataptic.Network.fromJSON(current))
+            this.neat.population[index] = neataptic.Network.fromJSON(current)
+            console.log('load ',index)
           })
-          this.neat.population = newPop;
+
         }else{
           console.log(err)
         }
@@ -103,7 +105,7 @@ class NeatManager{
         return false
       }
     })
-    console.log('onHaveNewPlayer ',havePlayerLeft)
+    // console.log('onHaveNewPlayer ',havePlayerLeft)
 
     if (!havePlayerLeft) {
       // wait
