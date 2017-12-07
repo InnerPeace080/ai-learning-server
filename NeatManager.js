@@ -103,6 +103,7 @@ class NeatManager{
         return false
       }
     })
+    console.log('onHaveNewPlayer ',havePlayerLeft)
 
     if (!havePlayerLeft) {
       // wait
@@ -123,10 +124,24 @@ class NeatManager{
       }
     })
     if (!havePlayerLeft) {
-      // wait
-      setTimeout(()=>{
-        this.getPlayer(cb)
-      },100)
+      var finish =  this.player.every((current)=>{
+        if (current.process === 2) {
+          return true
+        }else{
+          return false
+        }
+      })
+
+      if (finish) {
+        this.endEvaluation()
+      }else{
+        // wait
+        setTimeout(()=>{
+          this.getPlayer(cb)
+        },100)
+      }
+
+
     }else{
       // find player not process yet
       this.player.some((current,index)=>{

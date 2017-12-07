@@ -48,6 +48,7 @@ wss.on('connection',(ws)=> {
             neatManager.setScore(ws.myData.index,parseInt(message.slice(11)))
             neatManager.onHaveNewPlayer(()=>{
               try{
+                console.log('send requestGetNewBot')
                 ws.send('requestGetNewBot:')
               }catch(err){console.log(err)}
             })
