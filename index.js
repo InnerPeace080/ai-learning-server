@@ -66,6 +66,10 @@ wss.on('connection',(ws)=> {
     console.log('close ',ws.myData.index)
     neatManager.setStopProcess(ws.myData.index)
   })
+  ws.on('error', ()=> {
+    console.log('error ',ws.myData.index)
+    neatManager.setStopProcess(ws.myData.index)
+  })
 
 
   // ws.send('something');
