@@ -193,7 +193,7 @@ class NeatManager{
 
     var data =[]
     // var data = neataptic.Network.toJSON(this.neat.population);
-    if (isNaN(this.neat.getAverage()) ) {
+    if (!isNaN(this.neat.getAverage()) ) {
       this.player.forEach((current)=>{
         data.push(current.toJSON())
       })
