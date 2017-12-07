@@ -33,7 +33,10 @@ wss.on('connection',(ws)=> {
             console.log('send',ws.myData.index)
             try{
               ws.send('getBot:' + JSON.stringify(network.toJSON()));
-            }catch(err){console.log(err)}
+            }catch(err){
+              neatManager.setStopProcess(ws.myData.index)
+              console.log(err)
+            }
         })
 
         break;
