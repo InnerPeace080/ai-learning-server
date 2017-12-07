@@ -178,9 +178,23 @@ class NeatManager{
       }
     })
 
+
     if (finish) {
-      this.endEvaluation()
+      var checkScore =  this.player.every((current)=>{
+        if ((current.score >=0) ) {
+          return true
+        }else{
+          current.process = 0
+          return false
+        }
+      })
+      if (checkScore) {
+        this.endEvaluation()
+      }else{
+
+      }
     }
+
   }
   setStopProcess(index){
     if (this.player[index]) {
