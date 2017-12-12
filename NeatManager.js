@@ -31,39 +31,75 @@ class NeatManager{
                           Define.ROCK_PROPS *Define.ROCK_NUM +
                           Define.BULLET_PROPS *Define.BULLET_NUM
 
-    this.neat = new Neat(
-      this.numberInput * 2,
+    let initNetWork = new architect.Random(
+      this.numberInput ,
+      Define.START_HIDDEN_SIZE,
       1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
-      null,
-      {
-        mutation: methods.mutation.ALL,
-        popsize : Define.PLAYER_AMOUNT,
-        mutationRate: Define.MUTATION_RATE,
-        elitism: Math.round(Define.ELITISM_PERCENT * Define.PLAYER_AMOUNT),
-        network: new architect.Random(
-          Define.WIDTH*Define.HEIGHT + 1 /* fishPoint*/ ,
-          Define.START_HIDDEN_SIZE,
-          1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
-        )
-      }
     )
-    if (true) {
-      jsonfile.readFile('./data', (err, obj) =>{
-        if (!err) {
-          // var newPop = [];
-          obj.forEach((current,index)=>{
-            // newPop.push(neataptic.Network.fromJSON(current))
+
+    jsonfile.readFile('./data', (err, obj) =>{
+      if (err) {
+        // my modify network (for start up random)
+        initNetWork.connections.forEach((connection)=>{
+          // if (connection.weight > (1/250)) {
+              connection.weight = Math.random() * (2/250) + (-1/250)
+          // }
+        })
+      }
+
+      this.neat = new Neat(
+        this.numberInput,
+        1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+        null,
+        {
+          mutation: [
+            methods.mutation.ADD_NODE,
+            methods.mutation.SUB_NODE,
+            methods.mutation.ADD_CONN,
+            methods.mutation.SUB_CONN,
+            methods.mutation.MOD_WEIGHT,
+            methods.mutation.MOD_BIAS,
+            methods.mutation.MOD_ACTIVATION,
+            methods.mutation.ADD_GATE,
+            methods.mutation.SUB_GATE,
+            methods.mutation.ADD_SELF_CONN,
+            methods.mutation.SUB_SELF_CONN,
+            methods.mutation.ADD_BACK_CONN,
+            methods.mutation.SUB_BACK_CONN
+          ],
+          popsize : Define.PLAYER_AMOUNT,
+          mutationRate: Define.MUTATION_RATE,
+          elitism: Math.round(Define.ELITISM_PERCENT * Define.PLAYER_AMOUNT),
+          network: initNetWork
+        }
+      )
+
+      //
+      if (!err) {
+        // var newPop = [];
+        obj.some((current,index)=>{
+          // newPop.push(neataptic.Network.fromJSON(current))
+          if (index < Define.PLAYER_AMOUNT) {
             this.neat.population[index] = neataptic.Network.fromJSON(current)
             console.log('load ',index)
-          })
+            return false
+          }else{
+            return true
+          }
 
-        }else{
-          console.log(err)
-        }
+        })
 
-        console.log('read done')
-      })
-    }
+      }else{
+        console.log(err)
+      }
+
+      console.log('read done')
+
+
+    })
+
+
+
 
   }
 
@@ -168,6 +204,7 @@ class NeatManager{
       this.player[index].process = 2
 
       console.log('donePlayer '+ this.donePlayer + '/' +this.player.length)
+
     }
 
     var finish =  this.player.every((current)=>{
@@ -190,9 +227,16 @@ class NeatManager{
       })
       if (checkScore) {
         this.endEvaluation()
+        return ;
       }else{
 
       }
+    }
+
+    if (this.donePlayer > this.player.length) {
+      console.log('have something wrong')
+      this.endEvaluation()
+
     }
 
   }
