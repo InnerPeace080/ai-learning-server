@@ -11,9 +11,10 @@ class NeatManager{
   constructor(){
     this.player =[]
     this.donePlayer =0;
-    this.initNeat()
+    // this.initNeat()
     this.intervalCheck = this.intervalCheck.bind(this)
     setInterval(this.intervalCheck,1000)
+
   }
 
   intervalCheck(){
@@ -24,7 +25,8 @@ class NeatManager{
     })
   }
 
-  initNeat(){
+  initNeat(arg,cb){
+    this.training = arg.training
     this.numberInput = 1 + Define.FISH_PROPS * Define.FISH_NUM +
                           Define.PLAYER_PROPS *Define.PLAYER_NUM +
                           Define.ITEM_PROPS *Define.ITEM_NUM +
@@ -42,7 +44,7 @@ class NeatManager{
         // my modify network (for start up random)
         initNetWork.connections.forEach((connection)=>{
           // if (connection.weight > (1/250)) {
-              connection.weight = Math.random() * (2/250) + (-1/250)
+              connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
           // }
         })
       }
@@ -94,14 +96,80 @@ class NeatManager{
       }
 
       console.log('read done')
+      cb()
+
+    })
+
+  }
+
+  writeTrainingData(data){
+    jsonfile.writeFile(`./trainingData/data-${Date.now()}`, data, function (err) {
+      console.log('writeTrainingData err:',err)
+    })
+  }
+
+  train(){
+    var trainningData =[]
+    jsonfile.readFile('./dataAfterTraining', (err, obj) =>{
+      let initNetWork
+      if (!err) {
+        initNetWork = neataptic.Network.fromJSON(obj)
+      }else{
+        initNetWork = new architect.Random(
+          this.numberInput ,
+          Define.START_HIDDEN_SIZE,
+          1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+        )
+        initNetWork.connections.forEach((connection)=>{
+          connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
+        })
+      }
+
+
+      jsonfile.readFile('./trainingData/data-123456789', (err, obj) =>{
+        trainningData = obj
+        console.log('evolve')
+        this.startTrainning(initNetWork,trainningData)
+      })
 
 
     })
 
-
-
-
   }
+
+  async startTrainning(network,trainningData){
+    await network.evolve(trainningData, {
+      mutation: [
+        methods.mutation.ADD_NODE,
+        methods.mutation.SUB_NODE,
+        methods.mutation.ADD_CONN,
+        methods.mutation.SUB_CONN,
+        methods.mutation.MOD_WEIGHT,
+        methods.mutation.MOD_BIAS,
+        methods.mutation.MOD_ACTIVATION,
+        methods.mutation.ADD_GATE,
+        methods.mutation.SUB_GATE,
+        methods.mutation.ADD_SELF_CONN,
+        methods.mutation.SUB_SELF_CONN,
+        methods.mutation.ADD_BACK_CONN,
+        methods.mutation.SUB_BACK_CONN
+      ],
+      equal: true,
+      popsize: 100,
+      elitism: 10,
+      log: 1,
+      error: 0.03,
+      iterations: 100,
+      mutationRate: 0.5
+    });
+
+    jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
+      console.log(' write dataAfterTraining err ',err)
+    })
+
+    this.startTrainning(network,trainningData)
+  }
+
 
   startEvaluation(){
 

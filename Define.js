@@ -8,7 +8,7 @@ module.exports ={
   START_HIDDEN_SIZE:0,
 
   FISH_PROPS : 6,
-  FISH_NUM : 10,
+  FISH_NUM : 20,
   PLAYER_PROPS : 6,
   PLAYER_NUM : 10,
   ITEM_PROPS : 3,

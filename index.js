@@ -5,7 +5,11 @@ const neatManager = require('./NeatManager')
 
 const wss = new WebSocket.Server({ port: 60606 });
 
-neatManager.startEvaluation()
+neatManager.initNeat({training:false},()=>{
+    // neatManager.startEvaluation()
+    neatManager.train()
+})
+
 wss.on('listening', (arg)=> {
   console.log('listening',arg)
 })
@@ -41,10 +45,6 @@ wss.on('connection',(ws)=> {
 
         break;
       }
-      // case 'botRet':{
-      //   // ws.send('botRet:' + JSON.stringify(neatManager.player[0].toJSON()));
-      //   break;
-      // }
       default:{
         if (message.indexOf('sendBotRet:') === 0) {
           if (ws.myData.index !== undefined) {
@@ -56,6 +56,10 @@ wss.on('connection',(ws)=> {
               }catch(err){console.log(err)}
             })
           }
+        }else if(message.indexOf('sentTrainingData:') === 0){
+          let data = JSON.parse(message.slice(17) )
+          console.log('received Data',data)
+          neatManager.writeTrainingData(data)
         }
       }
     }
