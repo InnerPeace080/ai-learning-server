@@ -6,8 +6,8 @@ const neatManager = require('./NeatManager')
 const wss = new WebSocket.Server({ port: 60606 });
 
 neatManager.initNeat({},()=>{
-    neatManager.startEvaluation({})
-    // neatManager.train()
+    //neatManager.startEvaluation({})
+    neatManager.train()
 })
 
 wss.on('listening', (arg)=> {
