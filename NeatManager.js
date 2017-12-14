@@ -36,7 +36,7 @@ class NeatManager{
 
     let initNetWork = new architect.Random(
       this.numberInput ,
-      Define.START_HIDDEN_SIZE,
+      Math.floor(this.numberInput/2),// Define.START_HIDDEN_SIZE,
       1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
     )
     jsonfile.readFile('./dataAfterTraining', (errAfterTraining, objAfterTraining) =>{
