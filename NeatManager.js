@@ -185,21 +185,23 @@ class NeatManager{
       elitism: 10,
       log: 1,
       error: 0.03,
-      iterations: 1000000,
+      iterations: 100,
       mutationRate: 0.5,
-      schedule:{
-        function:()=>{
-          jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
-            console.log(' write dataAfterTraining err ',err)
-          })
-        },
-        iterations:100
-      }
+      // schedule:{
+      //   function:()=>{
+      //     jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
+      //       console.log(' write dataAfterTraining err ',err)
+      //     })
+      //   },
+      //   iterations:100
+      // }
     });
 
     jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
       console.log(' write dataAfterTraining err ',err)
     })
+
+    this.startTrainning(network,trainningData)
 
   }
 
