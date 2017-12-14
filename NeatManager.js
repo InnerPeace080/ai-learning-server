@@ -187,6 +187,7 @@ class NeatManager{
       error: 0.03,
       iterations: 100,
       mutationRate: 0.5,
+      threads:10,
       // schedule:{
       //   function:()=>{
       //     jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
