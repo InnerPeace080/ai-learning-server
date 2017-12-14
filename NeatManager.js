@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 const neataptic = require('neataptic')
 var jsonfile = require('jsonfile')
 const Define = require('./Define')
@@ -26,7 +28,7 @@ class NeatManager{
   }
 
   initNeat(arg,cb){
-    this.training = arg.training
+    this.useTrain = arg.useTrain
     this.numberInput = 1 + Define.FISH_PROPS * Define.FISH_NUM +
                           Define.PLAYER_PROPS *Define.PLAYER_NUM +
                           Define.ITEM_PROPS *Define.ITEM_NUM +
@@ -38,67 +40,75 @@ class NeatManager{
       Define.START_HIDDEN_SIZE,
       1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
     )
+    jsonfile.readFile('./dataAfterTraining', (errAfterTraining, objAfterTraining) =>{
+      jsonfile.readFile('./data', (err, obj) =>{
 
-    jsonfile.readFile('./data', (err, obj) =>{
-      if (err) {
-        // my modify network (for start up random)
-        initNetWork.connections.forEach((connection)=>{
-          // if (connection.weight > (1/250)) {
-              connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
-          // }
-        })
-      }
-
-      this.neat = new Neat(
-        this.numberInput,
-        1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
-        null,
-        {
-          mutation: [
-            methods.mutation.ADD_NODE,
-            methods.mutation.SUB_NODE,
-            methods.mutation.ADD_CONN,
-            methods.mutation.SUB_CONN,
-            methods.mutation.MOD_WEIGHT,
-            methods.mutation.MOD_BIAS,
-            methods.mutation.MOD_ACTIVATION,
-            methods.mutation.ADD_GATE,
-            methods.mutation.SUB_GATE,
-            methods.mutation.ADD_SELF_CONN,
-            methods.mutation.SUB_SELF_CONN,
-            methods.mutation.ADD_BACK_CONN,
-            methods.mutation.SUB_BACK_CONN
-          ],
-          popsize : Define.PLAYER_AMOUNT,
-          mutationRate: Define.MUTATION_RATE,
-          elitism: Math.round(Define.ELITISM_PERCENT * Define.PLAYER_AMOUNT),
-          network: initNetWork
+        if (err) {
+          // my modify network (for start up random)
+          initNetWork.connections.forEach((connection)=>{
+            // if (connection.weight > (1/250)) {
+                connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
+            // }
+          })
         }
-      )
 
-      //
-      if (!err) {
-        // var newPop = [];
-        obj.some((current,index)=>{
-          // newPop.push(neataptic.Network.fromJSON(current))
-          if (index < Define.PLAYER_AMOUNT) {
-            this.neat.population[index] = neataptic.Network.fromJSON(current)
-            console.log('load ',index)
-            return false
-          }else{
-            return true
+        if (!errAfterTraining) {
+          console.log('use training')
+          initNetWork = neataptic.Network.fromJSON(objAfterTraining)
+        }
+
+        this.neat = new Neat(
+          this.numberInput,
+          1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+          null,
+          {
+            mutation: [
+              methods.mutation.ADD_NODE,
+              methods.mutation.SUB_NODE,
+              methods.mutation.ADD_CONN,
+              methods.mutation.SUB_CONN,
+              methods.mutation.MOD_WEIGHT,
+              methods.mutation.MOD_BIAS,
+              methods.mutation.MOD_ACTIVATION,
+              methods.mutation.ADD_GATE,
+              methods.mutation.SUB_GATE,
+              methods.mutation.ADD_SELF_CONN,
+              methods.mutation.SUB_SELF_CONN,
+              methods.mutation.ADD_BACK_CONN,
+              methods.mutation.SUB_BACK_CONN
+            ],
+            popsize : Define.PLAYER_AMOUNT,
+            mutationRate: Define.MUTATION_RATE,
+            elitism: Math.round(Define.ELITISM_PERCENT * Define.PLAYER_AMOUNT),
+            network: initNetWork
           }
+        )
 
-        })
+        //
+        if (!err && !this.useTrain) {
+          // var newPop = [];
+          obj.some((current,index)=>{
+            // newPop.push(neataptic.Network.fromJSON(current))
+            if (index < Define.PLAYER_AMOUNT) {
+              this.neat.population[index] = neataptic.Network.fromJSON(current)
+              console.log('load ',index)
+              return false
+            }else{
+              return true
+            }
 
-      }else{
-        console.log(err)
-      }
+          })
 
-      console.log('read done')
-      cb()
+        }else{
+          console.log(err)
+        }
 
+        console.log('read done')
+        cb()
+
+      })
     })
+
 
   }
 
@@ -108,8 +118,23 @@ class NeatManager{
     })
   }
 
-  train(){
-    var trainningData =[]
+  async readDataTranning(){
+    var retData = []
+    var test = await fs.readdirSync('./trainingData')
+    test.forEach((file)=>{
+      console.log('read ',file)
+      let obj = jsonfile.readFileSync(`./trainingData/${file}`)
+      retData = retData.concat(obj)
+    })
+    console.log('readDataTranning length',retData.length)
+    return retData
+  }
+
+
+  async train(){
+
+    var trainningData = await this.readDataTranning()
+
     jsonfile.readFile('./dataAfterTraining', (err, obj) =>{
       let initNetWork
       if (!err) {
@@ -117,7 +142,7 @@ class NeatManager{
       }else{
         initNetWork = new architect.Random(
           this.numberInput ,
-          Define.START_HIDDEN_SIZE,
+          Math.floor(this.numberInput/2) , //Define.START_HIDDEN_SIZE,
           1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
         )
         initNetWork.connections.forEach((connection)=>{
@@ -125,13 +150,8 @@ class NeatManager{
         })
       }
 
-
-      jsonfile.readFile('./trainingData/data-123456789', (err, obj) =>{
-        trainningData = obj
-        console.log('evolve')
-        this.startTrainning(initNetWork,trainningData)
-      })
-
+      console.log('evolve')
+      this.startTrainning(initNetWork,trainningData)
 
     })
 

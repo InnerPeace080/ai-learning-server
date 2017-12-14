@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fs": "0.0.1-security",
     "jsonfile": "^4.0.0",
     "neataptic": "^1.4.7",
     "ws": "^3.3.2"
