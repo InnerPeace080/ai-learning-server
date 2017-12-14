@@ -142,8 +142,10 @@ class NeatManager{
     jsonfile.readFile('./dataAfterTraining', (err, obj) =>{
       let initNetWork
       if (!err) {
+        console.log('use initNetWork from dataAfterTraining')
         initNetWork = neataptic.Network.fromJSON(obj)
       }else{
+        console.log('use random initNetWork ')
         initNetWork = new architect.Random(
           this.numberInput ,
           Math.floor(this.numberInput/2) , //Define.START_HIDDEN_SIZE,
