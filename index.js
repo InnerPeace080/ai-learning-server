@@ -5,7 +5,7 @@ const neatManager = require('./NeatManager')
 
 const wss = new WebSocket.Server({ port: 60606 });
 
-neatManager.initNeat({useTrain:true},()=>{
+neatManager.initNeat({},()=>{
     neatManager.startEvaluation({})
     // neatManager.train()
 })

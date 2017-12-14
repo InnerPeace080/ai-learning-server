@@ -28,7 +28,6 @@ class NeatManager{
   }
 
   initNeat(arg,cb){
-    this.useTrain = arg.useTrain
     this.numberInput = 1 + Define.FISH_PROPS * Define.FISH_NUM +
                           Define.PLAYER_PROPS *Define.PLAYER_NUM +
                           Define.ITEM_PROPS *Define.ITEM_NUM +
@@ -44,18 +43,22 @@ class NeatManager{
       jsonfile.readFile('./data', (err, obj) =>{
 
         if (err) {
-          // my modify network (for start up random)
-          initNetWork.connections.forEach((connection)=>{
-            // if (connection.weight > (1/250)) {
-                connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
-            // }
-          })
+
+          if (!errAfterTraining) {
+            console.log('use training')
+            initNetWork = neataptic.Network.fromJSON(objAfterTraining)
+          }else{
+            // my modify network (for start up random)
+            initNetWork.connections.forEach((connection)=>{
+              // if (connection.weight > (1/250)) {
+                  connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
+              // }
+            })
+          }
+
         }
 
-        if (!errAfterTraining) {
-          console.log('use training')
-          initNetWork = neataptic.Network.fromJSON(objAfterTraining)
-        }
+
 
         this.neat = new Neat(
           this.numberInput,
@@ -85,7 +88,7 @@ class NeatManager{
         )
 
         //
-        if (!err && !this.useTrain) {
+        if (!err) {
           // var newPop = [];
           obj.some((current,index)=>{
             // newPop.push(neataptic.Network.fromJSON(current))
@@ -103,7 +106,7 @@ class NeatManager{
           console.log(err)
         }
 
-        console.log('read done')
+        console.log('init done')
         cb()
 
       })
