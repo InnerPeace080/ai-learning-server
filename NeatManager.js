@@ -183,7 +183,7 @@ class NeatManager{
       equal: true,
       popsize: 100,
       elitism: 10,
-      log: 1,
+      log: 10,
       error: 0.03,
       iterations: 100,
       mutationRate: 0.5,
