@@ -48,6 +48,7 @@ class NeatManager{
             console.log('use training')
             initNetWork = neataptic.Network.fromJSON(objAfterTraining)
           }else{
+            console.log('use random init')
             // my modify network (for start up random)
             initNetWork.connections.forEach((connection)=>{
               // if (connection.weight > (1/250)) {
