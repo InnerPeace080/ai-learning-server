@@ -104,8 +104,14 @@ class NeatManager{
               this.neat.population[index] = neataptic.Network.fromJSON(current)
               console.log('load ',index)
               return false
-            }else if((index >= Define.PLAYER_AMOUNT - 2 ) && ( index < Define.PLAYER_AMOUNT)){
+            }else if((!errAfterTraining) && (index >= Define.PLAYER_AMOUNT - 2 ) && ( index < Define.PLAYER_AMOUNT)){
+              console.log('load from objAfterTraining',index)
               this.neat.population[index] = neataptic.Network.fromJSON(objAfterTraining)
+              return false
+            }else if(index < Define.PLAYER_AMOUNT){
+              this.neat.population[index] = neataptic.Network.fromJSON(current)
+              console.log('load ',index)
+              return false
             }else{
               return true
             }
@@ -357,7 +363,7 @@ class NeatManager{
   }
 
   endEvaluation(){
-    if (this.endEvaluationProcess) {
+    if (this.endEvaluationProcess || !this.neat) {
       return;
     }
     this.endEvaluationProcess = true
