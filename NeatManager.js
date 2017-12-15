@@ -293,7 +293,7 @@ class NeatManager{
           retData={
             index:index,
             data:current,
-            tag:tag
+            tag:current.tag
           }
           return true
         }else{
