@@ -353,12 +353,6 @@ class NeatManager{
     var data =[]
     // var data = neataptic.Network.toJSON(this.neat.population);
     if (!isNaN(this.neat.getAverage()) ) {
-      this.player.forEach((current)=>{
-        data.push(current.toJSON())
-      })
-
-      jsonfile.writeFile('./data' /*+ (new Date()).getHours()*/, data, (err) => {
-        console.error('err write file',err)
 
         this.neat.sort();
         var newPopulation = [];
@@ -367,6 +361,10 @@ class NeatManager{
         for(var i = 0; i < this.neat.elitism; i++){
           newPopulation.push(this.neat.population[i]);
         }
+
+        this.neat.population.forEach((current)=>{
+          data.push(current.toJSON())
+        })
 
         // Breed the next individuals
         for(var i = 0; i < this.neat.popsize - this.neat.elitism; i++){
@@ -378,8 +376,10 @@ class NeatManager{
         this.neat.mutate();
 
         this.neat.generation++;
-        this.startEvaluation();
 
+      jsonfile.writeFile('./data' /*+ (new Date()).getHours()*/, data, (err) => {
+        console.error('err write file',err)
+        this.startEvaluation();
       })
     }else{
       this.player.forEach((current)=>{

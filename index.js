@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 var bodyParser = require('body-parser')
+var cmd=require('node-cmd');
+const Define = require('./Define')
 
 var url = require('url');
 
@@ -10,8 +12,22 @@ app.use(bodyParser.json({limit: '50mb'}))
 app.listen(10000, () => console.log('app listening on port 10000!'))
 
 neatManager.initNeat({},()=>{
-    // neatManager.startEvaluation({})
+  if (Define.TRAIN) {
     neatManager.train()
+  }else{
+    neatManager.startEvaluation({})
+    setInterval(()=>{
+      cmd.run('killall chrome');
+      for (var i = 0; i < 10; i++) {
+        cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
+      }
+    },60*60*1000)
+    cmd.run('killall chrome');
+    for (var i = 0; i < 10; i++) {
+      cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
+    }
+    // cmd.run('i3-msg \'workspace $ws1 ;  append_layout /media/Data/Code/NodeJS/shipwar-ai-learning/workspace-1.json\'')
+  }
 })
 
 app.get('/api/bot_struct',(req,res)=>{
@@ -42,4 +58,9 @@ app.post('/api/training_data',(req,res)=>{
   neatManager.writeTrainingData(req.body.data)
 
   res.send(JSON.stringify({OK:'OK'}))
+})
+
+
+setInterval(()=>{
+
 })

@@ -1,4 +1,6 @@
 module.exports ={
+  TRAIN:false,
+
   WIDTH:80,
   HEIGHT:46,
   PLAYER_AMOUNT:40,
