@@ -199,7 +199,7 @@ class NeatManager{
       popsize: 100,
       elitism: 10,
       log: 10,
-      error: 0.03,
+      error: 0.01,
       iterations: 100,
       mutationRate: 0.5,
       threads:10,
