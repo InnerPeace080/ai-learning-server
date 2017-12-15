@@ -1,8 +1,8 @@
 module.exports ={
   WIDTH:80,
   HEIGHT:46,
-  PLAYER_AMOUNT:20,
-  MUTATION_RATE:0.6,
+  PLAYER_AMOUNT:40,
+  MUTATION_RATE:0.5,
   ELITISM_PERCENT:0.2,
 
   START_HIDDEN_SIZE:0,
@@ -10,7 +10,7 @@ module.exports ={
   MY_PROPS : 10,
   NUMBER_OUTPUT: 6,
 
-  
+
   FISH_PROPS : 6,
   FISH_NUM : 20,
   PLAYER_PROPS : 6,

@@ -29,7 +29,9 @@ class NeatManager{
   }
 
   keepAlive(index){
-    this.player[index].startProcess = Date.now()
+    if (this.player[index]) {
+        this.player[index].startProcess = Date.now()
+    }
   }
 
   initNeat(arg,cb){
