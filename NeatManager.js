@@ -43,7 +43,7 @@ class NeatManager{
 
     let initNetWork = new architect.Random(
       this.numberInput ,
-      Math.floor(this.numberInput/2),// Define.START_HIDDEN_SIZE,
+      Define.START_HIDDEN_SIZE,
       Define.NUMBER_OUTPUT,
     )
     jsonfile.readFile('./dataAfterTraining', (errAfterTraining, objAfterTraining) =>{
@@ -163,7 +163,7 @@ class NeatManager{
         console.log('use random initNetWork ')
         initNetWork = new architect.Random(
           this.numberInput ,
-          Math.floor(this.numberInput/2) , //Define.START_HIDDEN_SIZE,
+          Define.START_HIDDEN_SIZE,
           Define.NUMBER_OUTPUT,
         )
         initNetWork.connections.forEach((connection)=>{
