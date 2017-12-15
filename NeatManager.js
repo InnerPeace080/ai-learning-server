@@ -127,8 +127,6 @@ class NeatManager{
 
       })
     })
-
-
   }
 
   writeTrainingData(data){
@@ -251,6 +249,11 @@ class NeatManager{
     // console.log(this.player[0].toJSON())
     // console.log(JSON.stringify(player.connections))
 
+  }
+  havePlayerProcessing(){
+    return  this.player.some((current)=>{
+      return (current.process === 1)
+    })
   }
   getPlayer(){
     var retData = undefined

@@ -22,6 +22,14 @@ neatManager.initNeat({},()=>{
         cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
       }
     },60*60*1000)
+    setInterval(()=>{
+      if (!neatManager.havePlayerProcessing()) {
+        cmd.run('killall chrome');
+        for (var i = 0; i < Define.NUM_CLIENT; i++) {
+          cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
+        }
+      }
+    },60*1000)
     cmd.run('killall chrome');
     for (var i = 0; i < Define.NUM_CLIENT; i++) {
       cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
