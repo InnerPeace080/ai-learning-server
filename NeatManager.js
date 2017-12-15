@@ -20,15 +20,20 @@ class NeatManager{
   }
 
   intervalCheck(){
-    this.player.forEach((current)=>{
-      if ((Date.now() - current.startProcess) > (30*60*1000)) {
+    this.player.forEach((current,index)=>{
+      if (current.process===1 && (Date.now() - current.startProcess) > (10*1000)) {
+        console.log(index , 'time out')
         current.process = 0
       }
     })
   }
 
+  keepAlive(index){
+    this.player[index].startProcess = Date.now()
+  }
+
   initNeat(arg,cb){
-    this.numberInput = 1 + Define.FISH_PROPS * Define.FISH_NUM +
+    this.numberInput = Define.MY_PROPS + Define.FISH_PROPS * Define.FISH_NUM +
                           Define.PLAYER_PROPS *Define.PLAYER_NUM +
                           Define.ITEM_PROPS *Define.ITEM_NUM +
                           Define.ROCK_PROPS *Define.ROCK_NUM +
@@ -37,7 +42,7 @@ class NeatManager{
     let initNetWork = new architect.Random(
       this.numberInput ,
       Math.floor(this.numberInput/2),// Define.START_HIDDEN_SIZE,
-      1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+      Define.NUMBER_OUTPUT,
     )
     jsonfile.readFile('./dataAfterTraining', (errAfterTraining, objAfterTraining) =>{
       jsonfile.readFile('./data', (err, obj) =>{
@@ -63,7 +68,7 @@ class NeatManager{
 
         this.neat = new Neat(
           this.numberInput,
-          1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+          Define.NUMBER_OUTPUT,
           null,
           {
             mutation: [
@@ -149,7 +154,7 @@ class NeatManager{
         initNetWork = new architect.Random(
           this.numberInput ,
           Math.floor(this.numberInput/2) , //Define.START_HIDDEN_SIZE,
-          1 /* move or not*/ + 1 /*move angle*/ + 1 /*shot or not*/ + 1 /*shot angle*/,
+          Define.NUMBER_OUTPUT,
         )
         initNetWork.connections.forEach((connection)=>{
           connection.weight = Math.random() * (2/this.numberInput) + (-1/this.numberInput)
@@ -257,7 +262,8 @@ class NeatManager{
       cb()
     }
   }
-  getPlayer(cb){
+  getPlayer(){
+    var retData = undefined
     var havePlayerLeft =  this.player.some((current)=>{
       if (current.process === 0) {
         return true
@@ -273,16 +279,9 @@ class NeatManager{
           return false
         }
       })
-
       if (finish) {
         this.endEvaluation()
-      }else{
-        // wait
-        setTimeout(()=>{
-          this.getPlayer(cb)
-        },100)
       }
-
 
     }else{
       // find player not process yet
@@ -290,15 +289,18 @@ class NeatManager{
         if (current.process === 0) {
           current.process = 1;
           current.startProcess = Date.now()
-          cb(index,current)
+          retData={
+            index:index,
+            data:current
+          }
           return true
         }else{
           return false
         }
       })
-
-
     }
+
+    return retData;
   }
   setScore(index,score){
     console.log('set score',index,score)

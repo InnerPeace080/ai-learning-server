@@ -7,6 +7,10 @@ module.exports ={
 
   START_HIDDEN_SIZE:0,
 
+  MY_PROPS : 10,
+  NUMBER_OUTPUT: 6,
+
+  
   FISH_PROPS : 6,
   FISH_NUM : 20,
   PLAYER_PROPS : 6,
