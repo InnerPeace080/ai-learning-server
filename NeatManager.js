@@ -100,11 +100,11 @@ class NeatManager{
           // var newPop = [];
           obj.some((current,index)=>{
             // newPop.push(neataptic.Network.fromJSON(current))
-            if (index < Define.PLAYER_AMOUNT - 2) {
+            if (index < Define.PLAYER_AMOUNT - Define.PLAYER_FROM_TRAIN) {
               this.neat.population[index] = neataptic.Network.fromJSON(current)
               console.log('load ',index)
               return false
-            }else if((!errAfterTraining) && (index >= Define.PLAYER_AMOUNT - 2 ) && ( index < Define.PLAYER_AMOUNT)){
+            }else if((!errAfterTraining) && (index >= Define.PLAYER_AMOUNT - Define.PLAYER_FROM_TRAIN ) && ( index < Define.PLAYER_AMOUNT)){
               console.log('load from objAfterTraining',index)
               this.neat.population[index] = neataptic.Network.fromJSON(objAfterTraining)
               return false
