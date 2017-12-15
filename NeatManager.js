@@ -140,7 +140,7 @@ class NeatManager{
   async readDataTranning(){
     var test = await fs.readdirSync('./trainingData')
     test.forEach((file)=>{
-      if (this.trainningFileReaded[file]) {
+      if (!this.trainningFileReaded[file]) {
 
         let obj = jsonfile.readFileSync(`./trainingData/${file}`)
         console.log('read ',file ,':', obj.length)
