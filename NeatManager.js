@@ -142,9 +142,9 @@ class NeatManager{
     test.forEach((file)=>{
       if (!this.trainningFileReaded[file]) {
 
-        let obj = jsonfile.readFileSync(`./trainingData/${file}`)
-        console.log('read ',file ,':', obj.length ,':',this.trainningData.length)
+        let obj = jsonfile.readFileSync(`./trainingData/${file}`)        
         this.trainningData = this.trainningData.concat(obj)
+        console.log('read ',file ,':', obj.length ,':',this.trainningData.length)
         this.trainningFileReaded[file] = true
       }
 
