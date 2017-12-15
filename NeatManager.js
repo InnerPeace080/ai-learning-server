@@ -100,10 +100,12 @@ class NeatManager{
           // var newPop = [];
           obj.some((current,index)=>{
             // newPop.push(neataptic.Network.fromJSON(current))
-            if (index < Define.PLAYER_AMOUNT) {
+            if (index < Define.PLAYER_AMOUNT - 2) {
               this.neat.population[index] = neataptic.Network.fromJSON(current)
               console.log('load ',index)
               return false
+            }else if((index >= Define.PLAYER_AMOUNT - 2 ) && ( index < Define.PLAYER_AMOUNT)){
+              this.neat.population[index] = neataptic.Network.fromJSON(objAfterTraining)
             }else{
               return true
             }
