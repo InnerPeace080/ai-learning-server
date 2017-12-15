@@ -11,6 +11,8 @@ var architect = neataptic.architect;
 
 class NeatManager{
   constructor(){
+    this.trainningFileReaded = {}
+    this.trainningData =[]
     this.player =[]
     this.donePlayer =0;
     // this.initNeat()
@@ -136,21 +138,22 @@ class NeatManager{
   }
 
   async readDataTranning(){
-    var retData = []
     var test = await fs.readdirSync('./trainingData')
     test.forEach((file)=>{
-      console.log('read ',file)
-      let obj = jsonfile.readFileSync(`./trainingData/${file}`)
-      retData = retData.concat(obj)
+      if (this.trainningFileReaded[file]) {
+
+        let obj = jsonfile.readFileSync(`./trainingData/${file}`)
+        console.log('read ',file ,':', obj.length)
+        this.trainningData = this.trainningData.concat(obj)
+        this.trainningFileReaded[file] = true
+      }
+
     })
-    console.log('readDataTranning length',retData.length)
-    return retData
+
   }
 
 
   async train(){
-
-    var trainningData = await this.readDataTranning()
 
     jsonfile.readFile('./dataAfterTraining', (err, obj) =>{
       let initNetWork
@@ -170,14 +173,16 @@ class NeatManager{
       }
 
       console.log('evolve')
-      this.startTrainning(initNetWork,trainningData)
+      this.startTrainning(initNetWork)
 
     })
 
   }
 
-  async startTrainning(network,trainningData){
-    await network.evolve(trainningData, {
+  async startTrainning(network){
+    await this.readDataTranning()
+
+    await network.evolve(this.trainningData, {
       mutation: [
         methods.mutation.ADD_NODE,
         methods.mutation.SUB_NODE,
@@ -215,7 +220,7 @@ class NeatManager{
       console.log(' write dataAfterTraining err ',err)
     })
 
-    this.startTrainning(network,trainningData)
+    this.startTrainning(network)
 
   }
 
@@ -370,9 +375,23 @@ class NeatManager{
         })
 
         // Breed the next individuals
-        for(var i = 0; i < this.neat.popsize - this.neat.elitism; i++){
+        for(var i = 0; i < (this.neat.popsize - this.neat.elitism - Define.PLAYER_FROM_TRAIN); i++){
           newPopulation.push(this.neat.getOffspring());
         }
+
+        var dataAfterTraining = jsonfile.readFileSync('./dataAfterTraining')
+        if (dataAfterTraining) {
+            console.log('dataAfterTraining:','nodes:',dataAfterTraining.nodes.length,'connections:',dataAfterTraining.connections.length)
+            for(var i = 0; i <  Define.PLAYER_FROM_TRAIN; i++){
+              newPopulation.push(neataptic.Network.fromJSON(dataAfterTraining));
+            }
+        }else{
+          for(var i = 0; i <  Define.PLAYER_FROM_TRAIN; i++){
+            newPopulation.push(this.neat.getOffspring());
+          }
+        }
+
+
 
         // Replace the old population with the new population
         this.neat.population = newPopulation;
