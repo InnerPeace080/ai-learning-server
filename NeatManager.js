@@ -252,26 +252,6 @@ class NeatManager{
     // console.log(JSON.stringify(player.connections))
 
   }
-  onHaveNewPlayer(cb){
-    var havePlayerLeft =  this.player.some((current)=>{
-      if (current.process === 0) {
-        return true
-      }else{
-        return false
-      }
-    })
-    // console.log('onHaveNewPlayer ',havePlayerLeft)
-
-    if (!havePlayerLeft) {
-      // wait
-      setTimeout(()=>{
-        this.onHaveNewPlayer(cb)
-      },100)
-    }else{
-
-      cb()
-    }
-  }
   getPlayer(){
     var retData = undefined
     var havePlayerLeft =  this.player.some((current)=>{
@@ -313,8 +293,9 @@ class NeatManager{
     return retData;
   }
   setScore(index,score){
-    console.log('set score',index,score)
+
     if (this.player[index].process === 1) {
+      console.log('set score',index,score)
       this.donePlayer += 1
       this.player[index].score = score
       this.player[index].process = 2
