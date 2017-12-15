@@ -367,6 +367,7 @@ class NeatManager{
 
         // Elitism
         for(var i = 0; i < this.neat.elitism; i++){
+          console.log('elitism:',i)
           newPopulation.push(this.neat.population[i]);
         }
 
@@ -376,6 +377,7 @@ class NeatManager{
 
         // Breed the next individuals
         for(var i = 0; i < (this.neat.popsize - this.neat.elitism - Define.PLAYER_FROM_TRAIN); i++){
+          console.log('getOffspring:',i)
           newPopulation.push(this.neat.getOffspring());
         }
 
@@ -383,10 +385,12 @@ class NeatManager{
         if (dataAfterTraining) {
             console.log('dataAfterTraining:','nodes:',dataAfterTraining.nodes.length,'connections:',dataAfterTraining.connections.length)
             for(var i = 0; i <  Define.PLAYER_FROM_TRAIN; i++){
+              console.log('dataAfterTraining:',i)
               newPopulation.push(neataptic.Network.fromJSON(dataAfterTraining));
             }
         }else{
           for(var i = 0; i <  Define.PLAYER_FROM_TRAIN; i++){
+            console.log('getOffspring:',i)
             newPopulation.push(this.neat.getOffspring());
           }
         }
