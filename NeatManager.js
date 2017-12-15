@@ -23,7 +23,7 @@ class NeatManager{
 
   intervalCheck(){
     this.player.forEach((current,index)=>{
-      if (current.process===1 && (Date.now() - current.startProcess) > (10*1000)) {
+      if (current.process===1 && (Date.now() - current.startProcess) > (15*1000)) {
         console.log(index , 'time out')
         current.process = 0
         current.tag = undefined
