@@ -46,6 +46,7 @@ app.get('/api/bot_struct',(req,res)=>{
   let data = neatManager.getPlayer()
   if (data) {
     respone.index = data.index
+    respone.tag = data.tag
     console.log('sent ',data.index)
     respone.network = data.data.toJSON()
     res.send(JSON.stringify(respone))
@@ -55,7 +56,7 @@ app.get('/api/bot_struct',(req,res)=>{
 })
 
 app.post('/api/bot_struct',(req,res)=>{
-  neatManager.setScore(req.body.index,req.body.score)
+  neatManager.setScore(req.body.index,req.body.tag,req.body.score)
   res.send(JSON.stringify({OK:'OK'}))
 })
 

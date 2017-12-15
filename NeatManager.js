@@ -26,6 +26,7 @@ class NeatManager{
       if (current.process===1 && (Date.now() - current.startProcess) > (10*1000)) {
         console.log(index , 'time out')
         current.process = 0
+        current.tag = undefined
       }
     })
   }
@@ -231,6 +232,7 @@ class NeatManager{
       this.player[index] = current
       this.player[index].process = 0
       this.player[index].startProcess = 0
+      this.player[index].tag = undefined
     })
 
     this.donePlayer =0;
@@ -287,9 +289,11 @@ class NeatManager{
         if (current.process === 0) {
           current.process = 1;
           current.startProcess = Date.now()
+          current.tag = Date.now()
           retData={
             index:index,
-            data:current
+            data:current,
+            tag:tag
           }
           return true
         }else{
@@ -300,9 +304,9 @@ class NeatManager{
 
     return retData;
   }
-  setScore(index,score){
+  setScore(index,tag,score){
 
-    if (this.player[index].process === 1) {
+    if (this.player[index].process === 1 && this.player[index].tag === tag ) {
       console.log('set score',index,score)
       this.donePlayer += 1
       this.player[index].score = score
@@ -327,6 +331,7 @@ class NeatManager{
           return true
         }else{
           current.process = 0
+          current.tag = undefined
           return false
         }
       })
@@ -348,6 +353,7 @@ class NeatManager{
   setStopProcess(index){
     if (this.player[index]) {
         this.player[index].process =0
+        this.player[index].tag =undefined
     }
   }
 
@@ -411,6 +417,7 @@ class NeatManager{
       this.player.forEach((current)=>{
         if (!current.score) {
             current.process = 0
+            current.tag = undefined
         }
       })
       this.startEvaluation();
