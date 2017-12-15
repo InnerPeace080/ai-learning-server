@@ -6,12 +6,12 @@ var url = require('url');
 
 const neatManager = require('./NeatManager')
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '50mb'}))
 app.listen(10000, () => console.log('app listening on port 10000!'))
 
 neatManager.initNeat({},()=>{
-    neatManager.startEvaluation({})
-    // neatManager.train()
+    // neatManager.startEvaluation({})
+    neatManager.train()
 })
 
 app.get('/api/bot_struct',(req,res)=>{
