@@ -1,7 +1,7 @@
 module.exports ={
   TRAIN:false,
 
-  NUM_CLIENT:6,
+  NUM_CLIENT:4,
 
   WIDTH:80,
   HEIGHT:46,
