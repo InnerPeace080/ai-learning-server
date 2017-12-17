@@ -36,6 +36,22 @@ class QNetManager{
           node.squash=methods.activation.IDENTITY
         }
       })
+      this.shootNetwork.nodes.forEach((node)=>{
+        if (node.type === 'hidden') {
+          node.squash=methods.activation.RELU
+        }
+        if (node.type === 'output') {
+          node.squash=methods.activation.IDENTITY
+        }
+      })
+      this.gunTypeNetwork.nodes.forEach((node)=>{
+        if (node.type === 'hidden') {
+          node.squash=methods.activation.RELU
+        }
+        if (node.type === 'output') {
+          node.squash=methods.activation.IDENTITY
+        }
+      })
 
     }
 
@@ -50,9 +66,10 @@ class QNetManager{
       this.moveNetWork = neataptic.Network.fromJSON(obj.moveNetWork)
       this.shootNetwork = neataptic.Network.fromJSON(obj.shootNetwork)
       this.gunTypeNetwork = neataptic.Network.fromJSON(obj.gunTypeNetwork)
+      console.log('loadDataAfterTraining load done')
       ret = true
     }catch(err){
-      console.log(err)
+      console.log('loadDataAfterTraining no file to load')
       ret = false
     }
 
