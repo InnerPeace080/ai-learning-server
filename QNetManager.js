@@ -28,30 +28,30 @@ class QNetManager{
       this.shootNetwork = new architect.Perceptron(this.numberInput,Math.floor(this.numberInput/2),1 + Define.qNet.NUMBER_DIRECTION);
       this.gunTypeNetwork = new architect.Perceptron(this.numberInput,Math.floor(this.numberInput/2),4);
 
-      // this.moveNetWork.nodes.forEach((node)=>{
-      //   if (node.type === 'hidden') {
-      //     node.squash=methods.activation.RELU
-      //   }
-      //   if (node.type === 'output') {
-      //     node.squash=methods.activation.IDENTITY
-      //   }
-      // })
-      // this.shootNetwork.nodes.forEach((node)=>{
-      //   if (node.type === 'hidden') {
-      //     node.squash=methods.activation.RELU
-      //   }
-      //   if (node.type === 'output') {
-      //     node.squash=methods.activation.IDENTITY
-      //   }
-      // })
-      // this.gunTypeNetwork.nodes.forEach((node)=>{
-      //   if (node.type === 'hidden') {
-      //     node.squash=methods.activation.RELU
-      //   }
-      //   if (node.type === 'output') {
-      //     node.squash=methods.activation.IDENTITY
-      //   }
-      // })
+      this.moveNetWork.nodes.forEach((node)=>{
+        if (node.type === 'hidden') {
+          node.squash=methods.activation.RELU
+        }
+        if (node.type === 'output') {
+          node.squash=methods.activation.IDENTITY
+        }
+      })
+      this.shootNetwork.nodes.forEach((node)=>{
+        if (node.type === 'hidden') {
+          node.squash=methods.activation.RELU
+        }
+        if (node.type === 'output') {
+          node.squash=methods.activation.IDENTITY
+        }
+      })
+      this.gunTypeNetwork.nodes.forEach((node)=>{
+        if (node.type === 'hidden') {
+          node.squash=methods.activation.RELU
+        }
+        if (node.type === 'output') {
+          node.squash=methods.activation.IDENTITY
+        }
+      })
 
     }
 
@@ -130,44 +130,46 @@ class QNetManager{
       let shootData=[]
       let gunTypeData=[]
       miniTrainingArray.forEach((current)=>{
-        let qMove = this.moveNetWork.activate(current.currentState.input)        
+        let qMove = this.moveNetWork.activate(current.currentState.input)
+        console.log(qMove)
         let selectMove = current.currentState.moveOutput.indexOf(1)
         qMove[selectMove] = current.nextState.reward + Define.qNet.GAMMA * Math.max(...this.moveNetWork.activate(current.nextState.input))
+        console.log('qMove',qMove)
         moveData.push({
           input:current.currentState.input,
           output:qMove
         })
-
-        let qShoot = this.shootNetwork.activate(current.currentState.input)
-        let selectShoot = current.currentState.shootOutput.indexOf(1)
-        qShoot[selectShoot] = current.nextState.reward + Define.qNet.GAMMA * Math.max(...this.moveNetWork.activate(current.nextState.input))
-        shootData.push({
-          input:current.currentState.input,
-          output:qShoot
-        })
-
-        let qGunType = this.gunTypeNetwork.activate(current.currentState.input)
-        let selectGunType = current.currentState.gunTypeOutput.indexOf(1)
-        qGunType[selectGunType] = current.nextState.reward + Define.qNet.GAMMA * Math.max(...this.gunTypeNetwork.activate(current.nextState.input))
-        gunTypeData.push({
-          input:current.currentState.input,
-          output:qGunType
-        })
+      //
+      //   let qShoot = this.shootNetwork.activate(current.currentState.input)
+      //   let selectShoot = current.currentState.shootOutput.indexOf(1)
+      //   qShoot[selectShoot] = current.nextState.reward + Define.qNet.GAMMA * Math.max(...this.moveNetWork.activate(current.nextState.input))
+      //   shootData.push({
+      //     input:current.currentState.input,
+      //     output:qShoot
+      //   })
+      //
+      //   let qGunType = this.gunTypeNetwork.activate(current.currentState.input)
+      //   let selectGunType = current.currentState.gunTypeOutput.indexOf(1)
+      //   qGunType[selectGunType] = current.nextState.reward + Define.qNet.GAMMA * Math.max(...this.gunTypeNetwork.activate(current.nextState.input))
+      //   gunTypeData.push({
+      //     input:current.currentState.input,
+      //     output:qGunType
+      //   })
       })
-
+      //
       var option={
         log:1,
         rate:Define.qNet.RATE,
         iterations:Define.qNet.ITERATIONS,
         error:Define.qNet.ERROR
       }
-
+      //
       this.moveNetWork.train(moveData,option)
-      this.shootNetwork.train(shootData,option)
-      this.gunTypeNetwork.train(gunTypeData,option)
-
-      this.writeDataAfterTraining()
-
+      // this.shootNetwork.train(shootData,option)
+      // this.gunTypeNetwork.train(gunTypeData,option)
+      //
+      // this.writeDataAfterTraining()
+      //
       this.startTrainning()
     }else{
       setTimeout(()=>{

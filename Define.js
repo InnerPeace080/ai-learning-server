@@ -28,9 +28,9 @@ module.exports ={
 
   qNet:{
     GAMMA:0.9,
-    subTrainingSize:10,
+    subTrainingSize:100,
 
-    ITERATIONS:10,
+    ITERATIONS:1000,
     RATE : 0.3,
     ERROR:0.5,
 
