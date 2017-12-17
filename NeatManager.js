@@ -183,45 +183,56 @@ class NeatManager{
   async startTrainning(network){
     await this.readDataTranning()
 
-    await network.evolve(this.trainningData, {
-      mutation: [
-        methods.mutation.ADD_NODE,
-        methods.mutation.SUB_NODE,
-        methods.mutation.ADD_CONN,
-        methods.mutation.SUB_CONN,
-        methods.mutation.MOD_WEIGHT,
-        methods.mutation.MOD_BIAS,
-        methods.mutation.MOD_ACTIVATION,
-        methods.mutation.ADD_GATE,
-        methods.mutation.SUB_GATE,
-        methods.mutation.ADD_SELF_CONN,
-        methods.mutation.SUB_SELF_CONN,
-        methods.mutation.ADD_BACK_CONN,
-        methods.mutation.SUB_BACK_CONN
-      ],
-      equal: true,
-      popsize: 100,
-      elitism: 10,
-      log: 50,
-      error: 0.01,
-      iterations: 100,
-      mutationRate: 0.5,
-      threads:4,
-      // schedule:{
-      //   function:()=>{
-      //     jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
-      //       console.log(' write dataAfterTraining err ',err)
-      //     })
-      //   },
-      //   iterations:100
-      // }
-    });
+    if (this.trainningData.length>0) {
+      await network.evolve(this.trainningData, {
+        mutation: [
+          methods.mutation.ADD_NODE,
+          methods.mutation.SUB_NODE,
+          methods.mutation.ADD_CONN,
+          methods.mutation.SUB_CONN,
+          methods.mutation.MOD_WEIGHT,
+          methods.mutation.MOD_BIAS,
+          methods.mutation.MOD_ACTIVATION,
+          methods.mutation.ADD_GATE,
+          methods.mutation.SUB_GATE,
+          methods.mutation.ADD_SELF_CONN,
+          methods.mutation.SUB_SELF_CONN,
+          methods.mutation.ADD_BACK_CONN,
+          methods.mutation.SUB_BACK_CONN
+        ],
+        equal: true,
+        popsize: 100,
+        elitism: 10,
+        log: 50,
+        error: 0.01,
+        iterations: 100,
+        mutationRate: 0.5,
+        threads:4,
+        // schedule:{
+        //   function:()=>{
+        //     jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
+        //       console.log(' write dataAfterTraining err ',err)
+        //     })
+        //   },
+        //   iterations:100
+        // }
+      });
 
-    jsonfile.writeFile('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON(), (err) => {
-      console.log(' write dataAfterTraining err ',err)
-    })
+      try{
+          jsonfile.writeFileSync('./dataAfterTraining' /*+ (new Date()).getHours()*/, network.toJSON())
+      }catch(err){
+        console.log(err)
+      }
 
-    this.startTrainning(network)
+      this.startTrainning(network)
+    }else{
+      setTimeout(()=>{
+        this.startTrainning(network)
+      },60*1000)
+    }
+
+
+
 
   }
 

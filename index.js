@@ -7,56 +7,50 @@ const Define = require('./Define')
 var url = require('url');
 
 const neatManager = require('./NeatManager')
+const qNetManager = require('./QNetManager')
 
-app.use(bodyParser.json({limit: '50mb'}))
+app.use(bodyParser.json({limit: '500mb'}))
 app.listen(10000, () => console.log('app listening on port 10000!'))
 
-neatManager.initNeat({},()=>{
-  neatManager.train()
-  neatManager.startEvaluation({})
+// neatManager.initNeat({},()=>{
+  // neatManager.train()
+  // neatManager.startEvaluation({})
+// })
+qNetManager.initQNet({},()=>{
+  // setTimeout(()=>{
+      qNetManager.train()
+  // })
 
-  // if (Define.TRAIN) {
-  //   neatManager.train()
-  // }else{
-  //   neatManager.startEvaluation({})
-  //   setInterval(()=>{
-  //     cmd.run('killall chrome');
-  //     for (var i = 0; i < Define.NUM_CLIENT; i++) {
-  //       cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
-  //     }
-  //   },60*60*1000)
-  //   setInterval(()=>{
-  //     if (!neatManager.havePlayerProcessing()) {
-  //       cmd.run('killall chrome');
-  //       for (var i = 0; i < Define.NUM_CLIENT; i++) {
-  //         cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
-  //       }
-  //     }
-  //   },60*1000)
-  //   cmd.run('killall chrome');
-  //   for (var i = 0; i < Define.NUM_CLIENT; i++) {
-  //     cmd.run('google-chrome --disable-web-security --user-data-dir --app=http://localhost/ShootFishNengiJS/');
-  //   }
-  //   // cmd.run('i3-msg \'workspace $ws1 ;  append_layout /media/Data/Code/NodeJS/shipwar-ai-learning/workspace-1.json\'')
-  // }
 })
 
 app.get('/api/bot_struct',(req,res)=>{
   let respone ={}
-  let data = neatManager.getPlayer()
-  if (data) {
-    respone.index = data.index
-    respone.tag = data.tag
-    console.log('sent ',data.index)
-    respone.network = data.data.toJSON()
-    res.send(JSON.stringify(respone))
-  }else{
-    res.status(404).send('no available bot')
+  switch (req.query.botType) {
+    case 'NEAT':{
+      // let data = neatManager.getPlayer()
+      // if (data) {
+      //   respone.index = data.index
+      //   respone.tag = data.tag
+      //   console.log('sent ',data.index)
+      //   respone.network = data.data.toJSON()
+      //   res.send(JSON.stringify(respone))
+      // }else{
+      //   res.status(404).send('no available bot')
+      // }
+      break;
+    }
+    case 'QNET':{
+      res.send(JSON.stringify({}))
+      break;
+    }
+    default:
+
   }
+
 })
 
 app.post('/api/bot_struct',(req,res)=>{
-  neatManager.setScore(req.body.index,req.body.tag,req.body.score)
+  // neatManager.setScore(req.body.index,req.body.tag,req.body.score)
   res.send(JSON.stringify({OK:'OK'}))
 })
 
@@ -67,7 +61,17 @@ app.get('/api/keep_alive',(req,res)=>{
 
 app.post('/api/training_data',(req,res)=>{
   console.log('received Data',req.body.data.length)
-  neatManager.writeTrainingData(req.body.data)
+  switch (req.query.botType) {
+    case 'NEAT':{
+      // neatManager.writeTrainingData(req.body.data)
+      break;
+    }
+    case 'QNET':{
+      qNetManager.writeTrainingData(req.body.data)
+      break;
+    }
+    default:
+  }
 
   res.send(JSON.stringify({OK:'OK'}))
 })

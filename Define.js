@@ -25,4 +25,33 @@ module.exports ={
   ROCK_NUM : 5,
   BULLET_PROPS : 5,
   BULLET_NUM : 20,
+
+  qNet:{
+    GAMMA:0.9,
+    subTrainingSize:1,
+
+    ITERATIONS:10,
+    RATE : 0.3,
+    ERROR:0.5,
+
+      WIDTH:80,
+      HEIGHT:46,
+
+      MY_PROPS : 10,
+
+      FISH_PROPS : 6,
+      FISH_NUM : 20,
+      PLAYER_PROPS : 6,
+      PLAYER_NUM : 10,
+      ITEM_PROPS : 3,
+      ITEM_NUM : 5,
+      ROCK_PROPS : 3,
+      ROCK_NUM : 5,
+      BULLET_PROPS : 5,
+      BULLET_NUM : 20,
+
+
+      NUMBER_DIRECTION:16,
+
+    }
 }
