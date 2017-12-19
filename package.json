@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "convnetjs": "git+https://github.com/InnerPeace080/convnetjs.git",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "jsonfile": "^4.0.0",

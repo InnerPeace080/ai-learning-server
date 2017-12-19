@@ -13,15 +13,16 @@ app.use(bodyParser.json({limit: '500mb'}))
 app.listen(10000, () => console.log('app listening on port 10000!'))
 
 neatManager.initNeat({},()=>{
-  neatManager.train()
+//   neatManager.train()
   neatManager.startEvaluation({})
 })
-// qNetManager.initQNet({},()=>{
-//   // setTimeout(()=>{
-//       qNetManager.train()
-//   // })
-//
-// })
+
+qNetManager.initQNet({},()=>{
+  // setTimeout(()=>{
+      // qNetManager.train()
+  // })
+
+})
 
 app.get('/api/bot_struct',(req,res)=>{
   let respone ={}
@@ -40,7 +41,9 @@ app.get('/api/bot_struct',(req,res)=>{
       break;
     }
     case 'QNET':{
-      res.send(JSON.stringify({}))
+      let data = qNetManager.getPlayer()
+      respone=data
+      res.send(JSON.stringify(respone))
       break;
     }
     default:
@@ -50,7 +53,18 @@ app.get('/api/bot_struct',(req,res)=>{
 })
 
 app.post('/api/bot_struct',(req,res)=>{
-  neatManager.setScore(req.body.index,req.body.tag,req.body.score)
+  switch (req.query.botType) {
+    case 'NEAT':{
+      neatManager.setScore(req.body.index,req.body.tag,req.body.score)
+      break;
+    }
+    case 'QNET':{
+      qNetManager.writeNetworkDataFromClient(req.body.data)
+      break;
+    }
+    default:
+  }
+
   res.send(JSON.stringify({OK:'OK'}))
 })
 
