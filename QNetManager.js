@@ -70,7 +70,7 @@ class QNetManager{
       ...opt,
       layer_defs:layer_shoot_defs
     });
-    this.gunTypeNetwork = new deepqlearn.Brain(num_inputs, num_actions, {
+    this.gunTypeNetwork = new deepqlearn.Brain(num_inputs, 4, {
       ...opt,
       layer_defs:layer_gun_type_defs
     });
@@ -89,9 +89,9 @@ class QNetManager{
       // this.moveNetwork = neataptic.Network.fromJSON(obj.moveNetwork)
       // this.shootNetwork = neataptic.Network.fromJSON(obj.shootNetwork)
       // this.gunTypeNetwork = neataptic.Network.fromJSON(obj.gunTypeNetwork)
-      this.moveNetwork.fromJSON(obj.moveNetwork)
-      this.shootNetwork.fromJSON(obj.shootNetwork)
-      this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
+      obj.moveNetwork && this.moveNetwork.fromJSON(obj.moveNetwork)
+      obj.shootNetwork && this.shootNetwork.fromJSON(obj.shootNetwork)
+      obj.gunTypeNetwork && this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
     //   console.log('loadDataAfterTraining load done')
     //   ret = true
     }catch(err){
@@ -105,6 +105,7 @@ class QNetManager{
   writeNetworkDataFromClient(dataJSON){
     console.log('QNET writeNetworkDataFromClient')
     jsonfile.writeFileSync(`./QNetAfterTraining`, dataJSON)
+    jsonfile.writeFileSync(`./QNetAfterTraining_bak/QNetAfterTraining${Date.now()}`, dataJSON)
   }
   writeDataAfterTraining(dataJSON){
     var dataJSON={
