@@ -14,7 +14,7 @@ app.listen(10000, () => console.log('app listening on port 10000!'))
 
 neatManager.initNeat({},()=>{
 //   neatManager.train()
-  neatManager.startEvaluation({})
+  // neatManager.startEvaluation({})
 })
 
 qNetManager.initQNet({},()=>{
