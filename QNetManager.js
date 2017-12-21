@@ -16,49 +16,44 @@ class QNetManager{
 
   initQNet(arg,cb){
 
-    var num_actions = 1 + Define.qNet.NUMBER_DIRECTION; // 5 possible angles agent can turn
-    var temporal_window = 0; // amount of temporal memory. 0 = agent lives in-the-moment :)
+    var num_actions = 1 + Define.qNet.NUMBER_DIRECTION; //
+    var temporal_window = 1; // amount of temporal memory. 0 = agent lives in-the-moment :)
 
     var layer_move_defs = [];
     var layer_shoot_defs = [];
     var layer_gun_type_defs = [];
 
-    var moveInput = Define.qNet.MY_PROPS + Define.qNet.FISH_PROPS * Define.qNet.FISH_NUM +
-                          Define.qNet.PLAYER_PROPS *Define.qNet.PLAYER_NUM +
-                          Define.qNet.ITEM_PROPS *Define.qNet.ITEM_NUM +
-                          Define.qNet.ROCK_PROPS *Define.qNet.ROCK_NUM +
-                          Define.qNet.BULLET_PROPS *Define.qNet.BULLET_NUM
+    var moveInput = Define.qNet.NUMBER_DIRECTION
 
     layer_move_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:moveInput});
-    layer_move_defs.push({type:'fc', num_neurons: 26, activation:'relu'});
-    layer_move_defs.push({type:'fc', num_neurons: 26, activation:'relu'});
+    layer_move_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
+    // layer_move_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
     layer_move_defs.push({type:'regression', num_neurons:num_actions});
 
 
-    var shootInput = Define.qNet.MY_PROPS + Define.qNet.FISH_PROPS * Define.qNet.FISH_NUM +
-                          Define.qNet.PLAYER_PROPS *Define.qNet.PLAYER_NUM +
-                          Define.qNet.ROCK_PROPS *Define.qNet.ROCK_NUM
+    var shootInput = Define.qNet.NUMBER_DIRECTION
 
-    layer_shoot_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:shootInput});
-    layer_shoot_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
-    layer_shoot_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
+    layer_shoot_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:shootInput + temporal_window * (shootInput+num_actions)});
+    layer_shoot_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
+    layer_shoot_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
+    // layer_shoot_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
     layer_shoot_defs.push({type:'regression', num_neurons:num_actions});
 
-    var gunTypeInput = Define.qNet.MY_PROPS + Define.qNet.FISH_PROPS * Define.qNet.FISH_NUM +
-                          Define.qNet.PLAYER_PROPS *Define.qNet.PLAYER_NUM
-    layer_gun_type_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:gunTypeInput});
-    layer_gun_type_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
-    layer_gun_type_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
+    var gunTypeInput = Define.qNet.NUMBER_DIRECTION
+
+    layer_gun_type_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:gunTypeInput + temporal_window * (gunTypeInput+4)});
+    layer_gun_type_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
+    // layer_gun_type_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
     layer_gun_type_defs.push({type:'regression', num_neurons:4});
 
-    // var tdtrainer_options = {learning_rate:0.1, momentum:0.0, batch_size:6, l2_decay:0.01};
-    var tdtrainer_options = {method: 'adadelta', batch_size:12, l2_decay:0.0001};
+    // var tdtrainer_options = {method:'sgd',learning_rate:1, momentum:0.0, batch_size:6, l2_decay:0.01};
+    var tdtrainer_options = {method: 'adadelta', batch_size:64, l2_decay:0.01};
 
     var opt = {};
     opt.temporal_window = temporal_window;
     opt.experience_size = 30000;
     opt.start_learn_threshold = 1000;
-    opt.gamma = 0.7;
+    opt.gamma = 0.8;
     opt.learning_steps_total = 100000;
     opt.learning_steps_burnin = 3000;
     opt.epsilon_start = 0.01;
@@ -91,9 +86,9 @@ class QNetManager{
     var ret = false
     try{
       let obj = jsonfile.readFileSync(file?file:`./QNetAfterTraining`)
-      obj.moveNetwork && this.moveNetwork.fromJSON(obj.moveNetwork)
+      // obj.moveNetwork && this.moveNetwork.fromJSON(obj.moveNetwork)
       obj.shootNetwork && this.shootNetwork.fromJSON(obj.shootNetwork)
-      obj.gunTypeNetwork && this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
+      // obj.gunTypeNetwork && this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
       console.log('loadDataAfterTraining load done')
     //   ret = true
     }catch(err){
@@ -110,7 +105,7 @@ class QNetManager{
     jsonfile.writeFileSync(`./QNetAfterTraining_bak/QNetAfterTraining${Date.now()}`, dataJSON)
   }
   writeDataAfterTraining(dataJSON,file){
-    console.log('writeDataAfterTraining')
+    console.log('writeDataAfterTraining',file?file:`./QNetAfterTraining`)
     if (!dataJSON) {
       dataJSON={
         moveNetwork:this.moveNetwork.toJSON(),
@@ -128,16 +123,31 @@ class QNetManager{
     })
   }
 
-  async readDataTrainning(){
-    var test = await fs.readdirSync('./trainingQNETData')
-    test.forEach((file)=>{
+  async readDataTrainning(file){
+    if (file) {
       if (!this.trainningFileReaded[file]) {
         let obj = jsonfile.readFileSync(`./trainingQNETData/${file}`)
         this.trainningData = this.trainningData.concat(obj)
         console.log('read ',file ,':', obj.length ,':',this.trainningData.length)
         this.trainningFileReaded[file] = true
       }
-    })
+    }else{
+      var test = await fs.readdirSync('./trainingQNETData')
+      test.some((file,index)=>{
+        if (!this.trainningFileReaded[file]) {
+          let obj = jsonfile.readFileSync(`./trainingQNETData/${file}`)
+          this.trainningData = this.trainningData.concat(obj)
+          console.log('read ',file ,':', obj.length ,':',this.trainningData.length)
+          this.trainningFileReaded[file] = true
+        }
+        if (index >=20) {
+          return true
+        }else{
+          return false
+        }
+      })
+    }
+
   }
 
 
@@ -148,34 +158,39 @@ class QNetManager{
   }
 
   async startTrainning(){
-    await this.readDataTrainning()
+    await this.readDataTrainning()//('data-1513827144173')
 
     if (this.trainningData.length>0) {
-      this.trainningData.forEach((current)=>{
-        // this.moveNetwork.view(current.moveInput,current.moveOutput.indexOf(1))
-        this.shootNetwork.view(current.shootInput,current.shootOutput.indexOf(1))
-        this.gunTypeNetwork.view(current.gunTypeInput,current.gunTypeOutput.indexOf(1))
+      this.trainningData.some((current,index)=>{
+
+        // this.moveNetwork.view(current.moveInput,current.moveAction)
+        this.shootNetwork.view(current.shootInput,current.shootAction)
+        // this.gunTypeNetwork.view(current.gunTypeInput,current.gunTypeAction)
 
         // this.moveNetwork.backward(current.moveReward)
         this.shootNetwork.backward(current.shootReward)
-        this.gunTypeNetwork.backward(current.gunTypeReward)
+        // this.gunTypeNetwork.backward(current.gunTypeReward)
         this.count +=1
-        if ((this.count % 1) === 0) {
+        if ((this.count % 20) === 0) {
+          console.log(current.moveAction,current.moveReward,current.shootAction,current.shootReward,current.gunTypeAction,current.gunTypeReward)
           console.log('forward_passes =================> ',this.count)
-          // console.log('epsilon',this.moveNetwork.epsilon)
-          console.log('average_reward_window',this.moveNetwork.average_reward_window.get_average())
+
+          console.log('average_reward move',this.moveNetwork.average_reward_window.get_average())
+          console.log('average_reward shoot',this.shootNetwork.average_reward_window.get_average())
+          console.log('average_reward guntype',this.gunTypeNetwork.average_reward_window.get_average())
 
           console.log('average_loss move',this.moveNetwork.average_loss_window.get_average())
           console.log('average_loss shoot',this.shootNetwork.average_loss_window.get_average())
           console.log('average_loss guntype',this.gunTypeNetwork.average_loss_window.get_average())
         }
-        if ((this.moveNetwork.forward_passes % 1000) === 0) {
+        if ((this.count % 2000) === 0) {
           this.writeDataAfterTraining({
                     moveNetwork:this.moveNetwork.toJSON(),
                     shootNetwork:this.shootNetwork.toJSON(),
                     gunTypeNetwork:this.gunTypeNetwork.toJSON()
                   },'./QNetAfterTrainingLocal')
         }
+
       })
 
       await this.writeDataAfterTraining({

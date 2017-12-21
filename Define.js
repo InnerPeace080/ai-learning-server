@@ -48,7 +48,7 @@ module.exports ={
     BULLET_NUM : 10,
 
 
-    NUMBER_DIRECTION:16,
+    NUMBER_DIRECTION:32,
 
-    }
+  }
 }
