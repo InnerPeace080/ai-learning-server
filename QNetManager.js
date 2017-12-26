@@ -4,7 +4,6 @@ var convnetjs = require("convnetjs");
 var deepqlearn = require("convnetjs/build/deepqlearn");
 var jsonfile = require('jsonfile')
 const Define = require('./Define')
-console.log('deepqlearn',deepqlearn)
 
 class QNetManager{
   constructor(){
@@ -17,7 +16,7 @@ class QNetManager{
   initQNet(arg,cb){
 
     var num_actions = 1 + Define.qNet.NUMBER_DIRECTION; //
-    var temporal_window = 1; // amount of temporal memory. 0 = agent lives in-the-moment :)
+    var temporal_window = 0; // amount of temporal memory. 0 = agent lives in-the-moment :)
 
     var layer_move_defs = [];
     var layer_shoot_defs = [];
@@ -25,18 +24,18 @@ class QNetManager{
 
     var moveInput = Define.qNet.NUMBER_DIRECTION
 
-    layer_move_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:moveInput});
+    layer_move_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:moveInput + temporal_window * (moveInput+num_actions) });
     layer_move_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
-    // layer_move_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
+    layer_move_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
     layer_move_defs.push({type:'regression', num_neurons:num_actions});
 
 
     var shootInput = Define.qNet.NUMBER_DIRECTION
 
     layer_shoot_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:shootInput + temporal_window * (shootInput+num_actions)});
-    layer_shoot_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
-    layer_shoot_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
-    // layer_shoot_defs.push({type:'fc', num_neurons: 16, activation:'relu'});
+    layer_shoot_defs.push({type:'fc', num_neurons: 200, activation:'sigmoid'});
+    layer_shoot_defs.push({type:'fc', num_neurons: 200, activation:'sigmoid'});
+    // layer_shoot_defs.push({type:'fc', num_neurons: 200, activation:'relu'});
     layer_shoot_defs.push({type:'regression', num_neurons:num_actions});
 
     var gunTypeInput = Define.qNet.NUMBER_DIRECTION
@@ -46,14 +45,14 @@ class QNetManager{
     // layer_gun_type_defs.push({type:'fc', num_neurons: 32, activation:'relu'});
     layer_gun_type_defs.push({type:'regression', num_neurons:4});
 
-    // var tdtrainer_options = {method:'sgd',learning_rate:1, momentum:0.0, batch_size:6, l2_decay:0.01};
-    var tdtrainer_options = {method: 'adadelta', batch_size:64, l2_decay:0.01};
+    // var tdtrainer_options = {learning_rate:0.001, momentum:0.0, batch_size:12, l2_decay:0.01};
+    var tdtrainer_options = {method: 'adadelta', batch_size:12, l2_decay:0.01};
 
     var opt = {};
     opt.temporal_window = temporal_window;
     opt.experience_size = 30000;
     opt.start_learn_threshold = 1000;
-    opt.gamma = 0.8;
+    opt.gamma = 0;
     opt.learning_steps_total = 100000;
     opt.learning_steps_burnin = 3000;
     opt.epsilon_start = 0.01;
@@ -75,7 +74,7 @@ class QNetManager{
       layer_defs:layer_gun_type_defs
     });
 
-    this.loadDataAfterTraining()
+    // this.loadDataAfterTraining()
 
 
     console.log('init done')
@@ -86,9 +85,9 @@ class QNetManager{
     var ret = false
     try{
       let obj = jsonfile.readFileSync(file?file:`./QNetAfterTraining`)
-      // obj.moveNetwork && this.moveNetwork.fromJSON(obj.moveNetwork)
+      obj.moveNetwork && this.moveNetwork.fromJSON(obj.moveNetwork)
       obj.shootNetwork && this.shootNetwork.fromJSON(obj.shootNetwork)
-      // obj.gunTypeNetwork && this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
+      obj.gunTypeNetwork && this.gunTypeNetwork.fromJSON(obj.gunTypeNetwork)
       console.log('loadDataAfterTraining load done')
     //   ret = true
     }catch(err){
@@ -154,15 +153,42 @@ class QNetManager{
   async train(){
     this.count = 0
     await this.loadDataAfterTraining('./QNetAfterTrainingLocal')
+
+    for (var j = 0; j < 100000; j++) {
+      for (var i = 0; i < Define.qNet.NUMBER_DIRECTION; i++) {
+        let input= (new Array(Define.qNet.NUMBER_DIRECTION)).fill(1)
+        input[i] = Math.random() * 0.8
+        let temp = Math.round(Math.random() * (1+Define.qNet.NUMBER_DIRECTION - 1))
+        this.trainningData.push({
+          shootInput:input,
+          shootAction:temp,
+          shootReward:(temp === (i+1) )? 1:0
+        })
+
+      }
+    }
+
+
+    // console.log(this.trainningData)
+
     this.startTrainning()
   }
 
+  async test(){
+    await this.loadDataAfterTraining('./QNetAfterTrainingLocal')
+    for (var i = 0; i < Define.qNet.NUMBER_DIRECTION; i++) {
+      let input= (new Array(Define.qNet.NUMBER_DIRECTION)).fill(1)
+      input[i] = Math.random() * 0.8
+      console.log(i,this.shootNetwork.forward(input))
+    }
+  }
+
   async startTrainning(){
-    await this.readDataTrainning()//('data-1513827144173')
+    // await this.readDataTrainning()//('data-1513827144173')
 
     if (this.trainningData.length>0) {
       this.trainningData.some((current,index)=>{
-
+        // console.log(current.shootInput.length,current.shootAction,current.shootReward)
         // this.moveNetwork.view(current.moveInput,current.moveAction)
         this.shootNetwork.view(current.shootInput,current.shootAction)
         // this.gunTypeNetwork.view(current.gunTypeInput,current.gunTypeAction)
@@ -213,7 +239,7 @@ class QNetManager{
     console.log('QNET get player')
     var retData = {}
 
-    this.loadDataAfterTraining()
+    // this.loadDataAfterTraining()
 
     retData={
       moveNetwork:this.moveNetwork.toJSON(),
